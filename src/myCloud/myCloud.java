@@ -13,10 +13,10 @@ import java.util.List;
 public class myCloud {
 
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException {
-        if (args.length < 3 || args[0] != "-a") { // ficheiros?
-            System.err.println("Usage: java myCloud -a <server address> -c|-s|-e|-g <filename(s)>");
-            System.exit(1);
-        }
+      //  if (args.length < 3 || args[0] != "-a") { // ficheiros?
+       //     System.err.println("Usage: java myCloud -a <server address> -c|-s|-e|-g <filename(s)>");
+       //     System.exit(1);
+      //  }
         String[] host = null;
         String operation;
         List<String> filelist;
@@ -62,8 +62,8 @@ public class myCloud {
         }
 
         // primeira coisa criar o socket
-        String serverAdress = host[0];
-        int socket = Integer.parseInt(host[1]);
+        String serverAdress = "127.0.0.1";
+        int socket = 23457;
         Socket echoSocket = new Socket(serverAdress, socket);
 
         // criar strings object

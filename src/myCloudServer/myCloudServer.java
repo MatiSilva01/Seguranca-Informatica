@@ -17,7 +17,7 @@ public class myCloudServer {
 		 * }
 		 */
 		System.out.println("servidor: main");
-		int portNumber = 3030;
+		int portNumber = 23457;
 		// Integer.parseInt(args[0]);
 		myCloudServer server = new myCloudServer();
 		server.startServer(portNumber);
@@ -80,8 +80,9 @@ public class myCloudServer {
 					n = inStream.read(buffer, 0, (int) (size > 1024 ? 1024 : size));
 
 					// escreve
-					novo.write(buffer, 0, n);
-					size -= n;
+					if (n > 0) {
+					    novo.write(buffer, 0, n);
+					}					size -= n;
 				}
 
 				outStream.close();
