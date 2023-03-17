@@ -1,9 +1,13 @@
 package myCloudServer;
 
+import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -62,8 +66,51 @@ public class myCloudServer {
 				// cria as duas strings
 				ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+				InputStream in = null;
+	        	OutputStream out = null;
+	        	BufferedInputStream bis = null;
 
 				// AQUIIII
+				int filenumber = (int) inStream.readObject();
+					
+					// RECEIVE FILE
+					for (int j = 0; j < filenumber; j++) {
+						String filename = (String) inStream.readObject();
+						int filesize = (int) inStream.readObject();
+
+						 try {
+					            in = socket.getInputStream();
+					        } catch (IOException ex) {
+					            System.out.println("Can't get socket input stream. ");
+					        }
+	
+					        try {
+					            out = new FileOutputStream("received_" + filename);
+					        } catch (FileNotFoundException ex) {
+					            System.out.println("File not found. ");
+					        }
+	
+					        byte[] bytes = new byte[filesize]; //used to be filesize
+					        int count;
+					        while (filesize > 0 && (count = in.read(bytes, 0, (int) Math.min(bytes.length, filesize))) != -1) {
+					        	out.write(bytes, 0, count);
+					        	filesize -= count;
+					        }
+
+					        System.out.println(filename + " has been saved.");
+				
+					}
+			} catch (IOException e) {
+				System.out.println(e);
+			} catch (ClassNotFoundException e) {
+				System.out.println(e);
+			}
+		}
+	}
+}
+				
+				
+				/**
 				// novo para receber file
 				long size = inStream.readLong();
 				// le do socket e escreve para ficheiro
@@ -92,7 +139,6 @@ public class myCloudServer {
 
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
-		}
-	}
-}
+			} 
+		} 
+	} **/

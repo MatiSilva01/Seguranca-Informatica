@@ -1,25 +1,34 @@
 package myCloud;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class myCloud {
 
     public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException {
       //  if (args.length < 3 || args[0] != "-a") { // ficheiros?
-       //     System.err.println("Usage: java myCloud -a <server address> -c|-s|-e|-g <filename(s)>");
-       //     System.exit(1);
+      //     System.err.println("Usage: java myCloud -a <server address> -c|-s|-e|-g <filename(s)>");
+      //     System.exit(1);
       //  }
+    	
         String[] host = null;
         String operation;
         List<String> filelist;
+        filelist = new ArrayList<>();
+        filelist.add("pdf.pdf");
+        filelist.add("livro.pdf");
         int i = 0;
         while (i < args.length) {
             if (args[i].equals("-a")) {
@@ -60,37 +69,74 @@ public class myCloud {
             }
             i++;
         }
-
-        // primeira coisa criar o socket
-        String serverAdress = "127.0.0.1";
-        int socket = 23457;
-        Socket echoSocket = new Socket(serverAdress, socket);
-
-        // criar strings object
-        ObjectInputStream in = new ObjectInputStream(echoSocket.getInputStream());
-        ObjectOutputStream out = new ObjectOutputStream(echoSocket.getOutputStream());
-
-        // e um pdf
-        File myF = new File("pdf.pdf");
-        // tamanho do ficheiro
-        long size = myF.length();
-        out.write((int) size);
-
-        byte buffer[] = new byte[1024];
-        int n;
-        // ler do ficheiro / abrir
-        FileInputStream fStream = new FileInputStream(myF);
-
-        // enquanto ler do ficheiro e enviar p o socket
-        while ((n = fStream.read(buffer, 0, 1024)) > 0) {
-            // dizer q quero escrever p o socket
-            out.write(buffer, 0, n);
+        sendFiles(filelist, "127.0.0.1", 23457);
         }
-        fStream.close();
+        //enviar ficheiros
+        public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{
+            Socket echoSocket = new Socket(address, socket);
+	        ObjectOutputStream outStream = new ObjectOutputStream(echoSocket.getOutputStream());
+			ObjectInputStream inStream = new ObjectInputStream(echoSocket.getInputStream());
+			BufferedInputStream bis = null;
+			InputStream in = null;
+			OutputStream out = null;
+			
+	        outStream.writeObject((int) filelist.size());
+			for (String fname: filelist) {
+					outStream.writeObject(fname);
+					
+					File file = new File(fname);
+					
+			        // Get the size of the file
+			        long length = file.length();
+			        outStream.writeObject((int) length);
+			        byte[] bytes = new byte[(int) length];
+			        in = new FileInputStream(file);
+			        
+			        bis = new BufferedInputStream(in);
+			        
+			        bis.read(bytes, 0, bytes.length);
+			        
+			        
+			        out = echoSocket.getOutputStream();
+			        	        	     
+			        out.write(bytes, 0, bytes.length);
+			        out.flush();
+			        
+			        System.out.println(fname + " sent!");
+			}
+			out.close();
+	        in.close();
+	        echoSocket.close();
 
-        out.close();
-        in.close();
-        echoSocket.close();
-    }
-
+}
+        /*
+		public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{
+			// primeira coisa criar o socket
+	        Socket echoSocket = new Socket(address, socket);
+			// criar strings object
+	        ObjectInputStream in = new ObjectInputStream(echoSocket.getInputStream());
+	        ObjectOutputStream out = new ObjectOutputStream(echoSocket.getOutputStream());
+	        // e um pdf
+	        File myF = new File(filename);
+	        // tamanho do ficheiro
+	        long size = myF.length();
+	        out.write((int) size);
+	
+	        byte buffer[] = new byte[1024];
+	        int n;
+	        // ler do ficheiro / abrir
+	        FileInputStream fStream = new FileInputStream(myF);
+	
+	        // enquanto ler do ficheiro e enviar p o socket
+	        while ((n = fStream.read(buffer, 0, 1024)) > 0) {
+	            // dizer q quero escrever p o socket
+	            out.write(buffer, 0, n);
+	        }
+	        fStream.close();
+	
+	        out.close();
+	        in.close();
+	        echoSocket.close();
+	        }
+    */
 }
