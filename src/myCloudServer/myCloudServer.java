@@ -1,6 +1,7 @@
 package myCloudServer;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class myCloudServer {
 
@@ -22,9 +24,12 @@ public class myCloudServer {
 		 */
 		System.out.println("servidor: main");
 		int portNumber = 23457;
+		String[] user = new String[] {"maria", "maria2", "mariapass"};
 		// Integer.parseInt(args[0]);
 		myCloudServer server = new myCloudServer();
+		server.genKeyStore(user);
 		server.startServer(portNumber);
+		
 
 	}
 
@@ -50,6 +55,20 @@ public class myCloudServer {
 
 		}
 	}
+	
+			public void genKeyStore(String[] user) {
+			String command = "keytool -genkeypair -alias " + user[0]
+					+ " -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore." + user[0] + " -dname CN=" + user[1]
+					+ " -dname OU=FC -dname O=UL -dname L=Lisboa -dname ST=LS -dname C=PT" + " -keypass " + user[2];
+
+			String[] cmd = command.split(" ");
+			try {
+				Runtime.getRuntime().exec(cmd);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 	class ServerThread extends Thread {
 
@@ -77,7 +96,8 @@ public class myCloudServer {
 					for (int j = 0; j < filenumber; j++) {
 						String filename = (String) inStream.readObject();
 						int filesize = (int) inStream.readObject();
-
+						File newDir = new File("ServerFiles/" + "received_" + filename);
+						newDir.createNewFile();
 						 try {
 					            in = socket.getInputStream();
 					        } catch (IOException ex) {
@@ -85,9 +105,9 @@ public class myCloudServer {
 					        }
 	
 					        try {
-					            out = new FileOutputStream("received_" + filename);
+					            out = new FileOutputStream("ServerFiles/" + "received_" + filename);
 					        } catch (FileNotFoundException ex) {
-					            System.out.println("File not found. ");
+					            System.out.println("File not found. " + ex);
 					        }
 	
 					        byte[] bytes = new byte[filesize]; //used to be filesize
@@ -106,39 +126,8 @@ public class myCloudServer {
 				System.out.println(e);
 			}
 		}
+		
 	}
 }
 				
-				
-				/**
-				// novo para receber file
-				long size = inStream.readLong();
-				// le do socket e escreve para ficheiro
-				// crio o ficheito
-				FileOutputStream novo = new FileOutputStream("cc.pdf", false);
-				int n;
-				// o nosso buffer so aguenta 1024
-				byte buffer[] = new byte[1024];
-				// enquanto nao receber tudo
-				while (size > 0) {
-					// le
-					// se size maior q 1024 le so 1024, se nao le tudo e converte de long para int
 
-					n = inStream.read(buffer, 0, (int) (size > 1024 ? 1024 : size));
-
-					// escreve
-					if (n > 0) {
-					    novo.write(buffer, 0, n);
-					}					size -= n;
-				}
-
-				outStream.close();
-				inStream.close();
-
-				socket.close();
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			} 
-		} 
-	} **/

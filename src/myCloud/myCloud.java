@@ -108,35 +108,110 @@ public class myCloud {
 	        in.close();
 	        echoSocket.close();
 
+        }
+
+
+        
+        
+        
 }
-        /*
-		public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{
-			// primeira coisa criar o socket
-	        Socket echoSocket = new Socket(address, socket);
-			// criar strings object
-	        ObjectInputStream in = new ObjectInputStream(echoSocket.getInputStream());
-	        ObjectOutputStream out = new ObjectOutputStream(echoSocket.getOutputStream());
-	        // e um pdf
-	        File myF = new File(filename);
-	        // tamanho do ficheiro
-	        long size = myF.length();
-	        out.write((int) size);
-	
-	        byte buffer[] = new byte[1024];
-	        int n;
-	        // ler do ficheiro / abrir
-	        FileInputStream fStream = new FileInputStream(myF);
-	
-	        // enquanto ler do ficheiro e enviar p o socket
-	        while ((n = fStream.read(buffer, 0, 1024)) > 0) {
-	            // dizer q quero escrever p o socket
-	            out.write(buffer, 0, n);
-	        }
-	        fStream.close();
-	
-	        out.close();
-	        in.close();
-	        echoSocket.close();
-	        }
-    */
+
+/*
+ * TP3 cifra
+import java.io.FileInputStream;  
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.security.cert.Certificate;
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.CipherInputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Cifra {
+
+    public static void main(String[] args) throws Exception {	
+    //gerar uma chave aleatoria para utilizar com o AES
+    KeyGenerator kg = KeyGenerator.getInstance("AES");
+    //numero de bits da chave
+    kg.init(128);
+    //gera chave
+    SecretKey key = kg.generateKey();
+    //cipher para cifrar com a chave de cima
+    Cipher c = Cipher.getInstance("AES");
+    c.init(Cipher.ENCRYPT_MODE, key);
+
+    FileInputStream fis;
+    FileOutputStream fos;
+    CipherOutputStream cos;
+    //ler do ficheiro a.txt
+    fis = new FileInputStream("a.txt");
+    //cifra e mete no a.cif
+    fos = new FileOutputStream("a.cif");
+    //o c é o cipher, e envia p a string de output
+    cos = new CipherOutputStream(fos, c);
+    byte[] b = new byte[16];  
+    int i = fis.read(b);
+    while (i != -1) {
+        cos.write(b, 0, i);
+        i = fis.read(b);
+    }
+    cos.close();
+    fos.close();
+    
+    
+    //parte da TP3
+     *keytool.exe -genkeypair -keysize 2048 -alias maria -keyalg rsa -keystore keystore.maria -storetype PKCS12
+    
+    //Como obter um certificado da keystore ?
+    FileInputStream kfile = new FileInputStream("keystore.maria");  //keystore
+    KeyStore kstore = KeyStore.getInstance("PKCS12");
+    kstore.load(kfile, "matildesilva".toCharArray());           //password
+    Certificate cert = kstore.getCertificate("maria");  //alias do utilizador
+
+    //cipher com o RSA
+    Cipher c2 = Cipher.getInstance("RSA");
+    c2.init(Cipher.WRAP_MODE, cert);
+
+    //cifrar com a chave AES a chave publica do certificado
+    byte[] keyEncoded = c2.wrap(key);
+    
+    FileOutputStream kos = new FileOutputStream("a.key");
+    kos.write(keyEncoded);
+    kos.close();
+    
+
+    
+
+    }
 }
+
+ keytool -genkeypair -keysize 2048 -alias maria -keyalg rsa -keystore keystore.maria -storetype PKCS12
+//password
+ * repetir pass
+ * primeiro e ultimo nome
+ * organizacao unit
+ * organizao
+ * cidade
+ * estado
+ * pt
+ * Is CN=matilde silva, OU=fcul, O=fcul, L=lisboa, ST=kaa, C=pt correct?
+
+public static void genKeyStore(String[] user) {
+		String command = "keytool -genkeypair -alias " + user[0]
+				+ " -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore." + user[0] + " -dname CN=" + user[1]
+				+ " -dname OU=FC -dname O=UL -dname L=Lisboa -dname ST=LS -dname C=PT" + " -keypass " + user[2];
+
+		String[] cmd = command.split(" ");
+		try {
+			Runtime.getRuntime().exec(cmd);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+ */
