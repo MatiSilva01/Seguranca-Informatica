@@ -69,10 +69,8 @@ keytool -genkey -noprompt \
  -keypass password
 */
 			String[] cmd = command.split(" ");
-			System.out.println("*************************************");
 			try {
 				Runtime.getRuntime().exec(cmd);
-				System.out.println("-------------------------");
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
