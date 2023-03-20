@@ -9,12 +9,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -33,7 +27,8 @@ public class myCloud {
         List<String> filelist;
         filelist = new ArrayList<>();
         filelist.add("pdf.pdf");
-        //filelist.add("livro.pdf");
+
+
         int i = 0;
         while (i < args.length) {
             if (args[i].equals("-a")) {
@@ -74,19 +69,8 @@ public class myCloud {
             }
             i++;
         }
-        try {
-			sendFiles(Cifra.cipherFile(filelist),"127.0.0.1", 23457);
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        //sendFiles(filelist, "127.0.0.1", 23457);
+
+
         }
         //enviar ficheiros
         public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{
