@@ -9,8 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,7 +27,8 @@ public class myCloud {
         List<String> filelist;
         filelist = new ArrayList<>();
         filelist.add("pdf.pdf");
-        filelist.add("livro.pdf");
+
+
         int i = 0;
         while (i < args.length) {
             if (args[i].equals("-a")) {
@@ -69,7 +69,8 @@ public class myCloud {
             }
             i++;
         }
-        sendFiles(filelist, "127.0.0.1", 23457);
+
+
         }
         //enviar ficheiros
         public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{

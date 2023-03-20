@@ -69,8 +69,7 @@ keytool -genkey -noprompt \
  -keypass password
 */
 			String[] cmd = command.split(" ");
-			try {
-				Runtime.getRuntime().exec(cmd);
+
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -175,7 +174,7 @@ public class Cifra {
     fis = new FileInputStream("a.txt");
     //cifra e mete no a.cif
     fos = new FileOutputStream("a.cif");
-    //o c é o cipher, e envia p a string de output
+
     cos = new CipherOutputStream(fos, c);
     byte[] b = new byte[16];  
     int i = fis.read(b);
