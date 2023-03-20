@@ -35,9 +35,10 @@ public class Cifra {
 		FileOutputStream fos;
 		CipherOutputStream cos;
 		List<String> files = new ArrayList<>();
-		for (String filename: filelist) {
-			files.add(filename+ ".cifrado");
-			files.add(filename+ ".chave_secreta");
+		int j = 0;
+		for (String filename : filelist) {
+			//files.add(filename+ ".cifrado");
+			//files.add(filename+ ".chave_secreta");
 		
 		
 		try {
@@ -65,8 +66,8 @@ public class Cifra {
 		try {
 			fis = new FileInputStream(filename);
 			//cifra e mete no a.cif
-			fos = new FileOutputStream(files.get(0));
-			//o c Ã© o cipher, e envia p a string de output
+			fos = new FileOutputStream(filelist.get(j)+".cifrado");
+			//o c é o cipher, e envia p a string de output
 			cos = new CipherOutputStream(fos, c);
 			byte[] b = new byte[16];  
 			int i = fis.read(b);
@@ -94,7 +95,7 @@ public class Cifra {
 			kfile = new FileInputStream("keystore.maria");
 			KeyStore kstore = KeyStore.getInstance("PKCS12");
 			kstore.load(kfile, "mariapass".toCharArray());           //password
-			Certificate cert = kstore.getCertificate("maria2");  //alias do utilizador
+			Certificate cert = kstore.getCertificate("maria");  //alias do utilizador
 
 			//cipher com o RSA
 			Cipher c2 = Cipher.getInstance("RSA");
@@ -102,8 +103,7 @@ public class Cifra {
 
 			//cifrar com a chave AES a chave publica do certificado
 			byte[] keyEncoded = c2.wrap(key);
-			
-			FileOutputStream kos = new FileOutputStream(files.get(1));
+			FileOutputStream kos = new FileOutputStream(filelist.get(j)+".chave_secreta");
 			kos.write(keyEncoded);
 			kos.close();
 		} catch (FileNotFoundException e) {
@@ -125,6 +125,7 @@ public class Cifra {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		j++;
 		}
 		return files;
 
