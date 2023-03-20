@@ -53,7 +53,7 @@ public class Decifra {
                 //ler do ficheiro a.txt
                 fis = new FileInputStream(filelist.get(j)+".cifrado");
                 cis = new CipherInputStream(fis, c);
-                fos = new FileOutputStream("decifrado"+filelist.get(j));
+                fos = new FileOutputStream("decifrado-"+filelist.get(j));
                 
         
                 byte[] b = new byte[16];
