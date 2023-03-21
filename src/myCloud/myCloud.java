@@ -22,7 +22,7 @@ import java.io.OutputStream;
 
 public class myCloud {
 
-    public static void main(String[] args) throws UnknownHostException, IOException, ClassNotFoundException {
+    public static void main(String[] args)  {
       //  if (args.length < 3 || args[0] != "-a") { // ficheiros?
       //     System.err.println("Usage: java myCloud -a <server address> -c|-s|-e|-g <filename(s)>");
       //     System.exit(1);
@@ -33,6 +33,7 @@ public class myCloud {
         List<String> filelist;
         filelist = new ArrayList<>();
         filelist.add("pdf.pdf");
+        filelist.add("livro.pdf");
         //filelist.add("oi.txt");
         //filelist.add("livro.pdf");
         int i = 0;
@@ -46,6 +47,18 @@ public class myCloud {
                 for (int j = 1; i + j < args.length; j++) {
                     String f = args[i + j];
                     filelist.add(f);
+                    try {
+						sendFiles(Cifra.cipherFile(filelist),host[0], host[1], operation);
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchPaddingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
                 ;
             } else if (args[i].equals("-s")) {
@@ -54,6 +67,16 @@ public class myCloud {
                 for (int j = 1; i + j < args.length; j++) {
                     String f = args[i + j];
                     filelist.add(f);
+                    try {
+						sendFiles(Assina.assina(filelist), host[0], host[1], operation);
+						sendFiles(filelist , host[0], host[1], operation);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
                 ;
             } else if (args[i].equals("-e")) {
@@ -62,6 +85,22 @@ public class myCloud {
                 for (int j = 1; i + j < args.length; j++) {
                     String f = args[i + j];
                     filelist.add(f);
+                    try {
+						sendFiles(Cifra.cipherFile(filelist),host[0], host[1], operation);
+						sendFiles(Assina.assina(filelist), host[0], host[1], operation);
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchPaddingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
                 ;
             } else if (args[i].equals("-g")) {
@@ -76,8 +115,12 @@ public class myCloud {
             i++;
         }
         try {
-			sendFiles(Cifra.cipherFile(filelist),"127.0.0.1", 23457);
-			sendFiles(Decifra.decipherFile(filelist),"127.0.0.1", 23457);
+			sendFiles(Cifra.cipherFile(filelist),"127.0.0.1", "23457", "none");
+			sendFiles(Decifra.decipherFile(filelist),"127.0.0.1", "23457", "none");
+			sendFiles(Assina.assina(filelist),"127.0.0.1", "23457", "none");
+			VerificaAssinatura.verificaAssinatura(filelist);
+
+
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,14 +137,14 @@ public class myCloud {
         //sendFiles(filelist, "127.0.0.1", 23457);
         }
         //enviar ficheiros
-        public static void sendFiles(List<String> filelist, String address, int socket) throws IOException{
-            Socket echoSocket = new Socket(address, socket);
+        public static void sendFiles(List<String> filelist, String address, String socket, String operation) throws IOException{
+            Socket echoSocket = new Socket(address, Integer.parseInt(socket));
 	        ObjectOutputStream outStream = new ObjectOutputStream(echoSocket.getOutputStream());
 			ObjectInputStream inStream = new ObjectInputStream(echoSocket.getInputStream());
 			BufferedInputStream bis = null;
 			InputStream in = null;
 			OutputStream out = null;
-			
+			outStream.writeObject((String) operation);
 	        outStream.writeObject((int) filelist.size());
 			for (String fname: filelist) {
 					outStream.writeObject(fname);

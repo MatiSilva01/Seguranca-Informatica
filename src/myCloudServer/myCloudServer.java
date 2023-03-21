@@ -72,7 +72,7 @@ keytool -genkey -noprompt \
 			System.out.println("*************************************");
 			try {
 				Runtime.getRuntime().exec(cmd);
-				System.out.println("-----------------------------------------------");
+				System.out.println("--------------------------------------");
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -100,14 +100,25 @@ keytool -genkey -noprompt \
 	        	BufferedInputStream bis = null;
 
 				// AQUIIII
+				String operation = (String) inStream.readObject();
+				if (operation == "-g"){
+					
+					// send file
+					
+				} else {
 				int filenumber = (int) inStream.readObject();
 					
 					// RECEIVE FILE
 					for (int j = 0; j < filenumber; j++) {
 						String filename = (String) inStream.readObject();
 						int filesize = (int) inStream.readObject();
-						File newDir = new File("ServerFiles/" + "received_" + filename);
-						newDir.createNewFile();
+						if (operation == "-e"){
+							File newDir = new File("ServerFiles/" + "received_" + filename + ".seguro");
+							newDir.createNewFile();}
+						else {
+							File newDir = new File("ServerFiles/" + "received_" + filename);
+							newDir.createNewFile();}
+						
 						 try {
 					            in = socket.getInputStream();
 					        } catch (IOException ex) {
@@ -128,15 +139,15 @@ keytool -genkey -noprompt \
 					        }
 
 					        System.out.println(filename + " has been saved.");
-				
+					}
 					}
 			} catch (IOException e) {
 				System.out.println(e);
 			} catch (ClassNotFoundException e) {
 				System.out.println(e);
 			}
-		}
 		
+		}
 	}
 }
 				
