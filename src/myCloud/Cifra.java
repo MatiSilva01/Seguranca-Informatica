@@ -1,12 +1,17 @@
+//Seguranca-Informatica
+//Projetos SI - grupo 16
+//
+//Raphael Marques - 55135
+//Ruben Silva - 56911
+//Matilde Silva - 56895
+
 package myCloud;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -15,39 +20,31 @@ import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.CipherInputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 public class Cifra {
 
 	public static List<String> cipherFile(List<String> filelist) throws NoSuchAlgorithmException, NoSuchPaddingException {
-		
 		//gerar uma chave aleatoria para utilizar com o AES
 		KeyGenerator kg = null;
 		FileInputStream fis;
 		FileOutputStream fos;
 		CipherOutputStream cos;
 		List<String> files = new ArrayList<>();
-		int j = 0;
+
 		for (String filename : filelist) {
-			//files.add(filename+ ".cifrado");
-			//files.add(filename+ ".chave_secreta");
-		
-		
+			File file = new File(filename);
+			if (file.exists()) {
 		try {
 			kg = KeyGenerator.getInstance("AES");
-			//numero de bits da chave
 			kg.init(128);
 			
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -55,10 +52,8 @@ public class Cifra {
 		SecretKey key = kg.generateKey();
 		Cipher c = Cipher.getInstance("AES");
 		try {
-			//cipher para cifrar com a chave de cima
 			c.init(Cipher.ENCRYPT_MODE, key);
 		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -66,8 +61,8 @@ public class Cifra {
 		try {
 			fis = new FileInputStream(filename);
 			//cifra e mete no a.cif
-			fos = new FileOutputStream(filelist.get(j)+".cifrado");
-			//o c é o cipher, e envia p a string de output
+			fos = new FileOutputStream(filename+".cifrado");
+	        files.add(filename + ".cifrado"); 
 			cos = new CipherOutputStream(fos, c);
 			byte[] b = new byte[16];  
 			int i = fis.read(b);
@@ -80,19 +75,14 @@ public class Cifra {
 			fos.close();
 			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("O ficheiro " + filename + " n�o foi encontrado");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		
-		//parte da TP3
-		//Como obter um certificado da keystore ?
 		FileInputStream kfile;
 		try {
-			kfile = new FileInputStream("keystore.maria");
+			kfile = new FileInputStream("keystore.mariaCloud");
 			KeyStore kstore = KeyStore.getInstance("PKCS12");
 			kstore.load(kfile, "mariapass".toCharArray());           //password
 			Certificate cert = kstore.getCertificate("maria");  //alias do utilizador
@@ -101,31 +91,27 @@ public class Cifra {
 			Cipher c2 = Cipher.getInstance("RSA");
 			c2.init(Cipher.WRAP_MODE, cert);
 
-			//cifrar com a chave AES a chave publica do certificado
 			byte[] keyEncoded = c2.wrap(key);
-			FileOutputStream kos = new FileOutputStream(filelist.get(j)+".chave_secreta");
+			FileOutputStream kos = new FileOutputStream(filename+".chave_secreta");
+	        files.add(filename + ".chave_secreta"); 
 			kos.write(keyEncoded);
 			kos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("O ficheiro " + filename + " nao foi encontrado");
 		}  catch (KeyStoreException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		j++;
+		}	else {
+			System.out.println("O ficheiro " + filename + " nao foi encontrado.");
+		}
 		}
 		return files;
 

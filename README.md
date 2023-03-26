@@ -1,2 +1,0 @@
-# Seguranca-Informatica
-Projetos SI

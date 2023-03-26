@@ -1,7 +1,15 @@
+//Seguranca-Informatica
+//Projetos SI - grupo 16
+//
+//Raphael Marques - 55135
+//Ruben Silva - 56911
+//Matilde Silva - 56895
+
 package myCloudServer;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,27 +20,21 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 public class myCloudServer {
 
 	public static void main(String[] args) {
-		/**
-		 * if (args.length != 1) {
-		 * System.err.println("Usage: java myCloudServer port");
-		 * System.exit(1);
-		 * }
-		 */
 		System.out.println("servidor: main");
-		int portNumber = 23457;
+		int portNumber = 23456;
 		String[] user = new String[] {"maria", "maria2", "mariapass"};
 		// Integer.parseInt(args[0]);
 		myCloudServer server = new myCloudServer();
 		server.genKeyStore(user);
 		server.startServer(portNumber);
-		
-
 	}
 
+	@SuppressWarnings("resource")
 	public void startServer(int port) {
 
 		ServerSocket sSoc = null;
@@ -52,30 +54,20 @@ public class myCloudServer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	}
 	
 			public void genKeyStore(String[] user) {
 			String command = "keytool -genkeypair -noprompt -alias " + user[0]
-					+ " -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore." + user[0] + " -dname \" CN=" + user[1]
+					+ " -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore." + user[0] + "Cloud -dname \" CN=" + user[1]
 					+ ", OU=FC, O=UL, L=Lisboa, ST=LS, C=PT \" -storepass " + user[2] + " -keypass " + user[2];
-/*
-keytool -genkey -noprompt \
- -alias alias1 \
- -dname "CN=mqttserver.ibm.com, OU=ID, O=IBM, L=Hursley, S=Hants, C=GB" \
- -keystore keystore \
- -storepass password \
- -keypass password
-*/
-			String[] cmd = command.split(" ");
+		String[] cmd = command.split(" ");
 			System.out.println("*************************************");
 			try {
 				Runtime.getRuntime().exec(cmd);
-				System.out.println("--------------------------------------");
+				System.out.println("-------------------------------------");
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -99,12 +91,48 @@ keytool -genkey -noprompt \
 	        	OutputStream out = null;
 	        	BufferedInputStream bis = null;
 
-				// AQUIIII
 				String operation = (String) inStream.readObject();
-				if (operation == "-g"){
-					
+				if (operation.equals("-g")){
 					// send file
-					
+					@SuppressWarnings("unchecked")
+					List<String> filelist = (List<String>) inStream.readObject();
+					List<String> filetosendlist = new ArrayList<>();
+					for (String fname: filelist){
+						filetosendlist.add(fname + ".assinatura");
+						filetosendlist.add(fname + ".cifrado");
+						filetosendlist.add(fname + ".chave_secreta");
+					}
+												
+			        outStream.writeObject((int) filetosendlist.size());
+					for (String fname: filetosendlist) {
+		                try {
+		                    
+		                	File file = new File("ServerFiles/" + "received_" + fname);
+		                    in = new FileInputStream(file);
+					        
+					        bis = new BufferedInputStream(in);
+							outStream.writeObject(fname);
+					        // Get the size of the file
+					        long length = file.length();
+					        outStream.writeObject((int) length);
+					        byte[] bytes = new byte[(int) length];
+
+					        bis.read(bytes, 0, bytes.length);
+					        
+					        
+					        out = socket.getOutputStream();
+					        	        	     
+					        out.write(bytes, 0, bytes.length);
+					        out.flush();
+
+		                    System.out.println(fname + " sent!");
+		                    
+					        
+					     } catch (FileNotFoundException e) {
+					    	 System.out.println("O ficheiro " + fname + " n�o foi encontrado");
+					     }
+					}
+
 				} else {
 				int filenumber = (int) inStream.readObject();
 					
@@ -112,11 +140,24 @@ keytool -genkey -noprompt \
 					for (int j = 0; j < filenumber; j++) {
 						String filename = (String) inStream.readObject();
 						int filesize = (int) inStream.readObject();
-						if (operation == "-e"){
+						boolean exists = false;
+						if (operation.equals("-e")){
 							File newDir = new File("ServerFiles/" + "received_" + filename + ".seguro");
+							filename += ".seguro";
+							exists = newDir.exists();
 							newDir.createNewFile();}
+						else if (operation.equals("-s")){
+							if (!filename.endsWith(".assinatura")){
+								filename += ".assinado";
+							}
+							File newDir = new File("ServerFiles/" + "received_" + filename);
+							exists = newDir.exists();
+							newDir.createNewFile();
+							
+						}
 						else {
 							File newDir = new File("ServerFiles/" + "received_" + filename);
+							exists = newDir.exists();
 							newDir.createNewFile();}
 						
 						 try {
@@ -137,9 +178,11 @@ keytool -genkey -noprompt \
 					        	out.write(bytes, 0, count);
 					        	filesize -= count;
 					        }
+					        outStream.writeObject(!exists);
 
 					        System.out.println(filename + " has been saved.");
 					}
+					
 					}
 			} catch (IOException e) {
 				System.out.println(e);
