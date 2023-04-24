@@ -71,6 +71,7 @@ public class Cifra {
 
 				i = fis.read(b);
 			}
+			fis.close();
 			cos.close();
 			fos.close();
 			
@@ -96,6 +97,7 @@ public class Cifra {
 	        files.add(filename + ".chave_secreta"); 
 			kos.write(keyEncoded);
 			kos.close();
+			kfile.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("O ficheiro " + filename + " nao foi encontrado");
 		}  catch (KeyStoreException e) {

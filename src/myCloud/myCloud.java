@@ -30,10 +30,11 @@ public class myCloud {
         String operation;
         List<String> filelist;
         filelist = new ArrayList<>();
-
-        	filelist.add("css.pdf");
-        	filelist.add("pdf.pdf");
-
+        String[] user = new String[] {"maria", "maria2", "mariapass"};
+        
+        
+       
+        genKeyStore(user);
         
         int i = 0;
         while (i < args.length) {
@@ -115,12 +116,13 @@ public class myCloud {
 					outStream.writeObject((String) operation);
 			        outStream.writeObject(filelist);
 			        int filenumber = (int) inStream.readObject();
-					
+					if(filenumber == 0){
+                        System.out.println("Nenhum ficheiro foi encontrado no servidor.");
+                    }
 					// RECEIVE FILE
 					for (int j = 0; j < filenumber; j++) {
-						String filenameOriginal = (String) inStream.readObject();
+						String filename = (String) inStream.readObject();
 						int filesize = (int) inStream.readObject();
-						String filename = "g-" + filenameOriginal;
 						File newDir = new File(filename);
 						newDir.createNewFile();
 
@@ -151,10 +153,10 @@ public class myCloud {
                                 keyList.add(filename);
                             }
                             else if (filename.endsWith(".assinatura")){
-                                if(VerificaAssinatura.verificaAssinatura(filenameOriginal)){
-                                    System.out.println("Assinatura v�lida para o ficheiro: " + filenameOriginal);
+                                if(VerificaAssinatura.verificaAssinatura(filename)){
+                                    System.out.println("Assinatura valida para o ficheiro: " + filename);
                                 } else{
-                                    System.out.println("Assinatura n�o v�lida para o ficheiro: " + filenameOriginal);
+                                    System.out.println("Assinatura nao valida para o ficheiro: " + filename);
                                 }
                             }
   					}
@@ -179,6 +181,20 @@ public class myCloud {
       
 		}
     	
+	    public static void genKeyStore(String[] user) {
+			String command = "keytool -genkeypair -noprompt -alias " + user[0]
+					+ " -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore keystore." + user[0] + "Cloud -dname \" CN=" + user[1]
+					+ ", OU=FC, O=UL, L=Lisboa, ST=LS, C=PT \" -storepass " + user[2] + " -keypass " + user[2];
+		String[] cmd = command.split(" ");
+			System.out.println("*************************************");
+			try {
+				Runtime.getRuntime().exec(cmd);
+				System.out.println("-------------------------------------");
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
         public static void sendFiles(List<String> filelist, String address, String socket, String operation) throws IOException{
             Socket echoSocket = new Socket(address, Integer.parseInt(socket));
 	        ObjectOutputStream outStream = new ObjectOutputStream(echoSocket.getOutputStream());
@@ -232,8 +248,8 @@ public class myCloud {
 					e.printStackTrace();
 				}
 			}
-			//out.close();
-	        //in.close();
+			out.close();
+	        in.close();
 	        echoSocket.close();
 
         }

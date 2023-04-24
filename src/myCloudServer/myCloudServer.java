@@ -26,15 +26,14 @@ public class myCloudServer {
 
 	public static void main(String[] args) {
 		System.out.println("servidor: main");
-		int portNumber = 23456;
+		int portNumber = 23456; //TODO trocar p o que vem em args
 		String[] user = new String[] {"maria", "maria2", "mariapass"};
 		// Integer.parseInt(args[0]);
 		myCloudServer server = new myCloudServer();
-		server.genKeyStore(user);
+		//server.genKeyStore(user);
 		server.startServer(portNumber);
 	}
 
-	@SuppressWarnings("resource")
 	public void startServer(int port) {
 
 		ServerSocket sSoc = null;
@@ -78,7 +77,7 @@ public class myCloudServer {
 
 		ServerThread(Socket inSoc) {
 			socket = inSoc;
-			System.out.println("thread do server para cada cliente");
+			System.out.println("conexao de novo cliente");
 		}
 
 		public void run() {
@@ -94,13 +93,26 @@ public class myCloudServer {
 				String operation = (String) inStream.readObject();
 				if (operation.equals("-g")){
 					// send file
-					@SuppressWarnings("unchecked")
+					
 					List<String> filelist = (List<String>) inStream.readObject();
 					List<String> filetosendlist = new ArrayList<>();
 					for (String fname: filelist){
-						filetosendlist.add(fname + ".assinatura");
-						filetosendlist.add(fname + ".cifrado");
-						filetosendlist.add(fname + ".chave_secreta");
+						File file0 = new File("ServerFiles/" + "received_" + fname+ ".assinado");
+						File file1 = new File("ServerFiles/" + "received_" + fname+ ".assinatura");
+						File file2 = new File("ServerFiles/" + "received_" + fname+ ".cifrado");
+						File file3 = new File("ServerFiles/" + "received_" + fname+ ".chave_secreta");
+						if (file0.exists()) {
+							filetosendlist.add(fname + ".assinado");} 
+						if (file1.exists()) {
+							filetosendlist.add(fname + ".assinatura");} 
+						if (file2.exists()) {
+							filetosendlist.add(fname + ".cifrado");} 
+						if (file3.exists()) {
+							filetosendlist.add(fname + ".chave_secreta");
+						}
+						if (filetosendlist.size() == 0){
+							System.out.println("O ficheiro " + fname + " não foi encontrado");
+						}
 					}
 												
 			        outStream.writeObject((int) filetosendlist.size());
@@ -126,10 +138,12 @@ public class myCloudServer {
 					        out.flush();
 
 		                    System.out.println(fname + " sent!");
+		                    bis.close();
+		                    in.close();
 		                    
 					        
 					     } catch (FileNotFoundException e) {
-					    	 System.out.println("O ficheiro " + fname + " nï¿½o foi encontrado");
+					    	 System.out.println("O ficheiro " + fname + " não foi encontrado");
 					     }
 					}
 
@@ -178,11 +192,15 @@ public class myCloudServer {
 					        	out.write(bytes, 0, count);
 					        	filesize -= count;
 					        }
+					        out.close();
 					        outStream.writeObject(!exists);
 
 					        System.out.println(filename + " has been saved.");
+					      
 					}
-					
+					in.close();
+					  inStream.close();
+					  outStream.close();
 					}
 			} catch (IOException e) {
 				System.out.println(e);

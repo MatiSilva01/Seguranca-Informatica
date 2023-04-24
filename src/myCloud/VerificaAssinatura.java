@@ -32,7 +32,7 @@ public class VerificaAssinatura {
 	        s.update(buffer, 0, n);
 	    }
 	    FileInputStream fileAssinatura = new FileInputStream(filename);
-	    byte[] assinatura = new byte[256]; //TODO confirmar?
+	    byte[] assinatura = new byte[256]; 
 	   
 	    if ((fileAssinatura.read(assinatura)) != assinatura.length) {
 	        verify = false; 
